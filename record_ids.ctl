@@ -1,0 +1,7 @@
+LOAD DATA
+TRUNCATE
+INTO TABLE vger_subfields.tmp_ids
+FIELDS TERMINATED BY x'0D'
+TRAILING NULLCOLS
+( record_id
+)

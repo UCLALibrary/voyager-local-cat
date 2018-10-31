@@ -1,0 +1,5 @@
+# Ignore logs and other output files
+*.bad
+*.err
+*.log
+*.out
