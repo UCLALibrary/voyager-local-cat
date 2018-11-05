@@ -12,7 +12,9 @@ select
 , substr(bt.bib_format, 2, 1) as bib_level
 , bt.language
 , l.location_code
+, br.suppress_in_opac as bib_suppressed
 from ucladb.bib_text bt
+inner join ucladb.bib_master br on bt.bib_id = br.bib_id
 inner join ucladb.bib_mfhd bm on bt.bib_id = bm.bib_id
 inner join ucladb.mfhd_master mm on bm.mfhd_id = mm.mfhd_id
 inner join ucladb.location l on mm.location_id = l.location_id
