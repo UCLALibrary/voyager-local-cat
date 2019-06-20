@@ -2,19 +2,17 @@
 # Prepares vendor-supplied OCLC records for load by BatchCat OCLC loader:
 # * Remove vendor-specific 001 and 003
 # * Create new 001/003 from 035 OCLC number
+# * Set 005 to YYYYMMDD if optional 3rd parameter YYYYMMDD is provided
 
 use strict;
 use lib "/usr/local/bin/voyager/perl";
 use MARC::Batch;
 use UCLA_Batch; #for UCLA_Batch::safenext to better handle data errors
 
-if ($#ARGV != 1) {
-  print "\nUsage: $0 infile outfile\n";
-  exit 1;
-}
 
-my $infile = $ARGV[0];
-my $outfile = $ARGV[1];
+my ($infile, $outfile, $date) = @ARGV;
+# Must have at least first 2 input parameters
+die "nUsage: $0 infile outfile [YYYYMMDD]\n" if not defined $outfile;
 
 # Assume records are in UTF-8
 my $batch = MARC::Batch->new('USMARC', $infile);
@@ -38,6 +36,21 @@ while (my $record = UCLA_Batch::safenext($batch)) {
     my ($oclc) = $f035a =~ /(\d+)/;
 	$record->insert_fields_ordered(new MARC::Field('001', $oclc));
 	$record->insert_fields_ordered(new MARC::Field('003', 'OCoLC'));
+  }
+
+  # If date was provided, change/set the 005 to use it
+  # 005 needs to look like this: YYYYMMDD000000.0
+  # Example 005:20160527093929.0
+  if (defined $date) {
+    # TODO: check for valid YYYYMMDD?
+	# For now, just append zeros for hours/minutes/seconds
+	my $f005_date = $date.'000000.0';
+	my $f005 = $record->field('005');
+	if ($f005) {
+	  $f005->update($f005_date);
+	} else {
+	  $f005->insert_fields_ordered(new MARC::Field('005', $f005_date));
+	}
   }
 
   print OUT $record->as_usmarc();
