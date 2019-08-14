@@ -27,15 +27,18 @@ while (my $record = UCLA_Batch::safenext($batch)) {
   $record->delete_field($record->field('003'));
 
   # Use data from 035 to create 001/003
-  # Assume records have only 1 035, but make sure it's for OCLC
+  # Some records have multiple 035: iterate until you find the first OCLC one.
   # Example 035:  $a(OCoLC)949370237
-  my $f035 = $record->field('035');
-  my $f035a = $f035->subfield('a');
-  if ($f035a =~ /OCoLC/) {
-	# Who says perl is cryptic?
-    my ($oclc) = $f035a =~ /(\d+)/;
-	$record->insert_fields_ordered(new MARC::Field('001', $oclc));
-	$record->insert_fields_ordered(new MARC::Field('003', 'OCoLC'));
+  my @f035s = $record->field('035');
+  foreach my $f035 (@f035s) {
+    my $f035a = $f035->subfield('a');
+    if ($f035a =~ /OCoLC/) {
+	  # Who says perl is cryptic?
+      my ($oclc) = $f035a =~ /(\d+)/;
+	  $record->insert_fields_ordered(new MARC::Field('001', $oclc));
+	  $record->insert_fields_ordered(new MARC::Field('003', 'OCoLC'));
+	  last;
+    }
   }
 
   # If date was provided, change/set the 005 to use it
