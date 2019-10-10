@@ -3,3 +3,5 @@
 *.err
 *.log
 *.out
+# Ignore api keys
+api_keys.pl
