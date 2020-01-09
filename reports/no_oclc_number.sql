@@ -18,12 +18,19 @@ inner join ucladb.bib_master br on bt.bib_id = br.bib_id
 inner join ucladb.bib_mfhd bm on bt.bib_id = bm.bib_id
 inner join ucladb.mfhd_master mm on bm.mfhd_id = mm.mfhd_id
 inner join ucladb.location l on mm.location_id = l.location_id
-where not exists (
+where l.location_code not like '%cotf'
+and l.location_code not like '%ill'
+and not exists (
   select *
   from ucladb.bib_index
   where bib_id = bt.bib_id
   and index_code = '0350'
   and normal_heading like 'UCOCLC%'
+)
+and not exists (
+  select *
+  from vger_report.rpt_cotf_cleanup
+  where bib_id = bm.bib_id
 )
 ;
 

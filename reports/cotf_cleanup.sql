@@ -73,3 +73,4 @@ and not exists (
 
 grant select on vger_report.rpt_cotf_cleanup to ucla_preaddb;
 
+create index vger_report.ix_rpt_cotf_cleanup on vger_report.rpt_cotf_cleanup (bib_id);
